@@ -1,0 +1,136 @@
+/* Tooltip Component Styles */
+.tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-purple);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: help;
+  flex-shrink: 0;
+}
+
+.tooltip-icon.info {
+  background: var(--color-blue, #3b82f6);
+}
+
+.tooltip-icon.warning {
+  background: var(--color-orange, #f97316);
+}
+
+.tooltip-icon.danger {
+  background: var(--color-red, #ef4444);
+}
+
+.tooltip-box {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: nowrap;
+  z-index: 9999;
+  min-width: 200px;
+  max-width: 300px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  pointer-events: none;
+}
+
+.tooltip-box::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1e293b;
+}
+
+.tooltip-box.no-arrow::after {
+  display: none;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  color: #22c55e;
+  margin-bottom: 4px;
+}
+
+.tooltip-link {
+  color: #60a5fa;
+  text-decoration: underline;
+  display: block;
+  margin-top: 6px;
+}
+
+.tooltip-link:hover {
+  color: #93c5fd;
+}
+
+/* Inline form field tooltip */
+.form-field-tooltip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.form-field-tooltip label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  min-width: 150px;
+}
+
+/* Button tooltip */
+.btn-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sidebar tooltip */
+.sidebar-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: rgba(124, 58, 237, 0.1);
+  border-left: 3px solid var(--color-purple);
+}
+
+.sidebar-tooltip .tooltip-box {
+  left: 100%;
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 12px;
+}
+
+.sidebar-tooltip .tooltip-box::after {
+  top: 50%;
+  left: -12px;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: #1e293b;
+}

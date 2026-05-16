@@ -1,0 +1,121 @@
+.summary-page {
+  padding: var(--space-3xl) 0;
+  min-height: calc(100vh - 64px - 300px);
+}
+
+.summary-page .container {
+  max-width: 800px;
+}
+
+.summary-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.summary-video {
+  position: relative;
+  background: #000;
+}
+
+.video-thumbnail {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.watch-btn {
+  position: absolute;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-error);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.watch-btn:hover {
+  background: #DC2626;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.summary-content {
+  padding: var(--space-xl);
+}
+
+.summary-content h1 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-md);
+}
+
+.summary-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.format-badge {
+  background: var(--color-primary);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.view-count,
+.date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.summary-text {
+  margin-bottom: var(--space-xl);
+}
+
+.summary-text p {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-size: var(--font-size-md);
+}
+
+.summary-actions {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.summary-actions .btn {
+  flex: 1;
+}
+
+.error-state {
+  text-align: center;
+  padding: var(--space-3xl);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.error-state h1 {
+  margin-bottom: var(--space-md);
+}
+
+.error-state p {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .summary-actions {
+    flex-direction: column;
+  }
+}

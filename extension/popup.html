@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <title>VidBreefy</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    :root {
+      --bg-primary: #0F0F1A;
+      --bg-secondary: #1A1A2E;
+      --bg-card: #252542;
+      --bg-input: #1E1E3A;
+      --border: #2D2D4A;
+      --text-primary: #F8F8FF;
+      --text-secondary: #A0AEC0;
+      --text-muted: #6B7280;
+      --primary: #7C3AED;
+      --primary-hover: #6D28D9;
+      --accent: #A78BFA;
+      --success: #10B981;
+      --error: #EF4444;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      width: 400px;
+      min-height: 500px;
+      padding: 16px;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .header svg {
+      width: 32px;
+      height: 32px;
+    }
+    
+    .header span {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    
+    .user-email {
+      font-size: 12px;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+    
+    .pro-badge {
+      background: var(--primary);
+      color: white;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    
+    .guest-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .guest-info strong {
+      color: var(--primary);
+    }
+    
+    .input-group {
+      margin-bottom: 16px;
+    }
+    
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    
+    .input {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    
+    .input:focus {
+      border-color: var(--primary);
+    }
+    
+    .input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .error {
+      color: var(--error);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    
+    .format-toggle {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      background: var(--bg-input);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    
+    .format-btn {
+      flex: 1;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .format-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius);
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn:hover:not(:disabled) {
+      background: var(--primary-hover);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-secondary);
+    }
+    
+    .btn-sm {
+      padding: 8px;
+      font-size: 12px;
+    }
+    
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .result {
+      margin-top: 16px;
+      padding: 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    
+    .result-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .result-thumb {
+      width: 80px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    
+    .result-info h4 {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+    
+    .result-info .meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    
+    .result-text {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    
+    .result-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .result-actions .btn {
+      flex: 1;
+      padding: 8px;
+    }
+    
+    .source-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .source-transcript {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .source-metadata {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+    
+    .source-none {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .footer {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#7C3AED"/>
+      <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2"/>
+      <circle cx="16" cy="16" r="4" fill="white"/>
+    </svg>
+    <span>VidBreefy</span>
+  </div>
+  
+  <div id="user-section"></div>
+  
+  <div class="input-group">
+    <label>YouTube URL</label>
+    <input type="url" id="url-input" class="input" placeholder="https://youtube.com/watch?v=...">
+    <div id="url-error" class="error"></div>
+  </div>
+  
+  <div class="format-toggle">
+    <button class="format-btn" data-format="tldr">TL;DR</button>
+    <button class="format-btn active" data-format="short">Short</button>
+    <button class="format-btn" data-format="detailed">Detailed</button>
+  </div>
+  
+  <button id="summarize-btn" class="btn">
+    Summarize Video
+  </button>
+  
+  <div id="result-section"></div>
+  
+  <div class="footer">
+    <a href="http://142.132.189.59:3000/summarize" target="_blank">Open Full App →</a>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
