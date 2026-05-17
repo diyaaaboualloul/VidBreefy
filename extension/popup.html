@@ -1,344 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VidBreefy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg-primary: #0F0F1A;
-      --bg-secondary: #1A1A2E;
-      --bg-card: #252542;
-      --bg-input: #1E1E3A;
-      --border: #2D2D4A;
-      --text-primary: #F8F8FF;
-      --text-secondary: #A0AEC0;
-      --text-muted: #6B7280;
-      --primary: #7C3AED;
-      --primary-hover: #6D28D9;
-      --accent: #A78BFA;
-      --success: #10B981;
-      --error: #EF4444;
-      --radius: 8px;
-      --radius-lg: 12px;
+      --bg: #080c0b;
+      --surface: #0d1311;
+      --surface2: #111a17;
+      --surface3: #162420;
+      --border: #1e3329;
+      --accent: #14b8a6;
+      --accent-light: #2dd4bf;
+      --accent-glow: rgba(20,184,166,0.25);
+      --accent2: #22c55e;
+      --accent2-glow: rgba(34,197,94,0.2);
+      --text: #f0fdf4;
+      --muted: #6b8a7a;
+      --success: #22c55e;
+      --warn: #f59e0b;
+      --error: #ef4444;
     }
-    
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
       width: 400px;
-      min-height: 500px;
-      padding: 16px;
+      min-height: 200px;
+      max-height: 600px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow: hidden;
     }
-    
+
+    /* ── Header ── */
     .header {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 10px;
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #0a100e 0%, #080c0b 100%);
     }
-    
-    .header svg {
-      width: 32px;
-      height: 32px;
+    .logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
     }
-    
-    .header span {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
+    .header-text h1 {
+      font-size: 15px; font-weight: 800; letter-spacing: -0.3px;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    
-    .user-info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      background: var(--bg-secondary);
-      border-radius: var(--radius);
-      margin-bottom: 16px;
+    .header-text p {
+      font-size: 10px; color: var(--muted); letter-spacing: 0.5px; margin-top: 1px;
     }
-    
-    .user-email {
-      font-size: 12px;
-      color: var(--text-secondary);
-      word-break: break-all;
+    .settings-btn {
+      margin-left: auto;
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--muted); cursor: pointer; padding: 5px 8px; font-size: 13px;
+      transition: all 0.2s;
     }
-    
-    .pro-badge {
-      background: var(--primary);
-      color: white;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 999px;
+    .settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Screens ── */
+    .screen { display: none; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* ── Main screen ── */
+    #main-screen { padding: 14px 16px; gap: 12px; }
+
+    /* ── Video card ── */
+    .video-card {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px; display: flex; gap: 10px; align-items: flex-start;
     }
-    
-    .guest-info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      background: var(--bg-secondary);
-      border-radius: var(--radius);
-      margin-bottom: 16px;
-      font-size: 13px;
-      color: var(--text-secondary);
+    .yt-icon {
+      width: 28px; height: 28px; flex-shrink: 0; margin-top: 1px;
+      background: #ff0000; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
     }
-    
-    .guest-info strong {
-      color: var(--primary);
+    .video-info { flex: 1; min-width: 0; }
+    .video-title {
+      font-size: 12px; font-weight: 700; line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: var(--text);
     }
-    
-    .input-group {
-      margin-bottom: 16px;
+    .video-channel { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 0.3px; }
+    .not-youtube {
+      text-align: center; padding: 22px 16px; color: var(--muted);
+      font-size: 12px; line-height: 1.6;
     }
-    
-    .input-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
+    .not-youtube .big { font-size: 28px; display: block; margin-bottom: 8px; }
+
+    /* ── Action buttons ── */
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-btn {
+      flex: 1; min-width: calc(50% - 4px); padding: 9px 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-family: 'Syne', sans-serif;
+      font-weight: 600; font-size: 11px; cursor: pointer; letter-spacing: 0.3px;
+      transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
     }
-    
-    .input {
-      width: 100%;
-      padding: 12px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text-primary);
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.15s;
+    .action-btn:hover {
+      border-color: var(--accent); color: var(--accent);
+      background: var(--surface3);
+      box-shadow: 0 0 12px var(--accent-glow);
     }
-    
-    .input:focus {
-      border-color: var(--primary);
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #0d9488 100%);
+      border-color: transparent; color: #fff;
+      box-shadow: 0 0 20px var(--accent-glow);
     }
-    
-    .input::placeholder {
-      color: var(--text-muted);
+    .action-btn.primary:hover {
+      opacity: 0.9;
+      box-shadow: 0 0 28px var(--accent-glow);
+      border-color: transparent;
+      color: #fff;
     }
-    
-    .error {
-      color: var(--error);
-      font-size: 12px;
-      margin-top: 4px;
+    .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Question input ── */
+    .question-row { display: flex; gap: 7px; align-items: center; }
+    .question-input {
+      flex: 1; padding: 9px 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-family: 'Syne', sans-serif;
+      font-size: 11px; outline: none; transition: border 0.2s;
     }
-    
-    .format-toggle {
-      display: flex;
-      gap: 4px;
-      padding: 4px;
-      background: var(--bg-input);
-      border-radius: var(--radius);
-      margin-bottom: 16px;
+    .question-input:focus { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+    .question-input::placeholder { color: var(--muted); }
+    .ask-btn {
+      padding: 9px 13px;
+      background: linear-gradient(135deg, var(--accent2) 0%, #16a34a 100%);
+      border: none; border-radius: 8px; color: #fff;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+      cursor: pointer; transition: opacity 0.2s; white-space: nowrap;
+      box-shadow: 0 0 12px var(--accent2-glow);
     }
-    
-    .format-btn {
-      flex: 1;
-      padding: 8px;
-      background: transparent;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 12px;
-      font-weight: 500;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
+    .ask-btn:hover { opacity: 0.87; }
+    .ask-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Result area ── */
+    .result-area {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px; max-height: 320px; overflow-y: auto;
+      font-size: 12px; line-height: 1.7; color: var(--text);
+      scroll-behavior: smooth;
     }
-    
-    .format-btn.active {
-      background: var(--primary);
-      color: white;
+    .result-area::-webkit-scrollbar { width: 4px; }
+    .result-area::-webkit-scrollbar-track { background: transparent; }
+    .result-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .result-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 2px;
+      color: var(--accent); text-transform: uppercase; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
     }
-    
-    .btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--primary);
-      border: none;
-      border-radius: var(--radius);
-      color: white;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .btn:hover:not(:disabled) {
-      background: var(--primary-hover);
-    }
-    
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .btn-secondary {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-    }
-    
-    .btn-secondary:hover {
-      background: var(--bg-secondary);
-    }
-    
-    .btn-sm {
-      padding: 8px;
-      font-size: 12px;
-    }
-    
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid transparent;
-      border-top-color: currentColor;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .result {
-      margin-top: 16px;
-      padding: 12px;
-      background: var(--bg-secondary);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-    }
-    
-    .result-header {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    
-    .result-thumb {
-      width: 80px;
-      height: 45px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
-    
-    .result-info h4 {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 4px;
-      word-break: break-word;
-    }
-    
-    .result-info .meta {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    
-    .result-text {
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--text-secondary);
-      max-height: 150px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-    }
-    
-    .result-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    
-    .result-actions .btn {
-      flex: 1;
-      padding: 8px;
-    }
-    
+    .result-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Source badge ── */
     .source-badge {
-      display: inline-block;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 600;
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 700;
+      letter-spacing: 0.5px; margin-bottom: 8px;
     }
-    
-    .source-transcript {
-      background: #dcfce7;
-      color: #166534;
+    .source-badge.transcript { background: rgba(34,197,94,0.15); color: var(--success); }
+    .source-badge.metadata { background: rgba(245,158,11,0.15); color: var(--warn); }
+    .source-badge.none { background: rgba(239,68,68,0.15); color: var(--error); }
+
+    /* ── Loading ── */
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; padding: 20px 0; color: var(--muted); font-size: 11px;
     }
-    
-    .source-metadata {
-      background: #fef9c3;
-      color: #854d0e;
+    .spinner {
+      width: 28px; height: 28px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.7s linear infinite;
     }
-    
-    .source-none {
-      background: #fee2e2;
-      color: #991b1b;
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Sections in result ── */
+    .section-title {
+      font-size: 10px; font-weight: 800; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 5px; margin-top: 12px;
     }
-    
-    .footer {
-      margin-top: 16px;
-      text-align: center;
-      font-size: 11px;
-      color: var(--text-muted);
+    .section-title:first-child { margin-top: 0; }
+    .bullet-item {
+      position: relative; padding-left: 14px; margin-bottom: 4px; color: #c9f0e8;
     }
-    
-    .footer a {
-      color: var(--primary);
-      text-decoration: none;
+    .bullet-item::before { content: '▸'; position: absolute; left: 0; color: var(--accent2); font-size: 10px; }
+
+    /* ── Streaming cursor ── */
+    .cursor {
+      display: inline-block; width: 7px; height: 13px;
+      background: var(--accent); border-radius: 1px;
+      animation: blink 0.9s infinite; vertical-align: text-bottom; margin-left: 2px;
     }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── Copy button ── */
+    .copy-btn {
+      margin-top: 10px; padding: 6px 12px;
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      color: var(--muted); font-family: 'Syne', sans-serif; font-size: 10px;
+      cursor: pointer; letter-spacing: 0.3px; transition: all 0.2s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { border-color: var(--success); color: var(--success); }
+
+    /* ── Error ── */
+    .error-msg { color: var(--error); font-size: 11px; line-height: 1.5; }
+
+    /* ── Utilities ── */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#7C3AED"/>
-      <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2"/>
-      <circle cx="16" cy="16" r="4" fill="white"/>
-    </svg>
-    <span>VidBreefy</span>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">▶</div>
+  <div class="header-text">
+    <h1>VidBreefy</h1>
+    <p>AI VIDEO INSIGHTS</p>
   </div>
-  
-  <div id="user-section"></div>
-  
-  <div class="input-group">
-    <label>YouTube URL</label>
-    <input type="url" id="url-input" class="input" placeholder="https://youtube.com/watch?v=...">
-    <div id="url-error" class="error"></div>
+  <button class="settings-btn" id="settingsToggle" title="Settings">⚙</button>
+</div>
+
+<!-- Main Screen -->
+<div class="screen active" id="main-screen">
+
+  <!-- Video info card -->
+  <div id="videoCard" class="video-card hidden">
+    <div class="yt-icon">▶</div>
+    <div class="video-info">
+      <div class="video-title" id="videoTitle">Loading…</div>
+      <div class="video-channel" id="videoChannel"></div>
+    </div>
   </div>
-  
-  <div class="format-toggle">
-    <button class="format-btn" data-format="tldr">TL;DR</button>
-    <button class="format-btn active" data-format="short">Short</button>
-    <button class="format-btn" data-format="detailed">Detailed</button>
+  <div id="notYoutube" class="not-youtube">
+    <span class="big">🎬</span>
+    Navigate to a YouTube video,<br/>then click the VidBreefy icon.
   </div>
-  
-  <button id="summarize-btn" class="btn">
-    Summarize Video
-  </button>
-  
-  <div id="result-section"></div>
-  
-  <div class="footer">
-    <a href="http://142.132.189.59:3000/summarize" target="_blank">Open Full App →</a>
+
+  <!-- Action buttons -->
+  <div class="actions">
+    <button class="action-btn primary" id="summarizeBtn">✦ Summarize</button>
+    <button class="action-btn" id="keyPointsBtn">Key Points</button>
+    <button class="action-btn" id="topicsBtn">Topics</button>
   </div>
-  
-  <script src="popup.js"></script>
+
+  <!-- Ask a question -->
+  <div class="question-row">
+    <input type="text" class="question-input" id="questionInput" placeholder="Ask anything about this video…" />
+    <button class="ask-btn" id="askBtn">Ask</button>
+  </div>
+
+  <!-- Result -->
+  <div class="result-area hidden" id="resultArea">
+    <div id="sourceBadge" class="source-badge transcript hidden"></div>
+    <div class="result-label" id="resultLabel">Summary</div>
+    <div id="resultContent"></div>
+    <button class="copy-btn hidden" id="copyBtn">⎘ Copy</button>
+  </div>
+
+</div>
+
+<script src="popup.js"></script>
 </body>
 </html>

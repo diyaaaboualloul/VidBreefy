@@ -9,6 +9,13 @@
 
 .dashboard-header {
   margin-bottom: var(--space-xl);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-header > div {
+  flex: 1;
 }
 
 .dashboard-header h1 {
@@ -18,6 +25,29 @@
 
 .dashboard-header p {
   color: var(--color-text-secondary);
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(20,184,166,0.25);
+}
+
+.btn-download:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 28px rgba(20,184,166,0.4);
+  transform: translateY(-1px);
 }
 
 /* Subscription Card */

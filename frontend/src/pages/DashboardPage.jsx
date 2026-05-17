@@ -222,8 +222,17 @@ export default function DashboardPage() {
     <div className="dashboard-page">
       <div className="container">
         <div className="dashboard-header">
-          <h1>Dashboard</h1>
-          <p>Manage your summaries and account</p>
+          <div>
+            <h1>Dashboard</h1>
+            <p>Manage your summaries and account</p>
+          </div>
+          <a
+            href="/vidbreefy-extension.zip"
+            download
+            className="btn btn-download"
+          >
+            Download Extension
+          </a>
         </div>
 
         {/* Subscription Card */}

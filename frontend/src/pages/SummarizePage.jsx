@@ -205,13 +205,24 @@ export default function SummarizePage() {
               </>
             ) : (
               <>
-                <span>✨ Summarize Video</span>
+                <span>Summarize Video</span>
                 {!user && dailyCount >= 3 && (
                   <span className="btn-warning-icon" title="Daily limit reached">⚠️</span>
                 )}
               </>
             )}
           </button>
+
+          {!url && (
+            <a
+              href="https://chrome.google.com/webstore/detail/vidbreefy/becjajmdehionlpcgmhnmbpgmhkhdgoh"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-extension-hint"
+            >
+              Install VidBreefy Extension for better transcript extraction
+            </a>
+          )}
 
           {!user && (
             <div className="daily-limit-info">

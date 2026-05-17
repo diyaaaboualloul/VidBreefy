@@ -959,6 +959,149 @@ app.post('/api/ai/summarize', requireAuth, requireCsrf, async (req, res) => {
 });
 
 // =====================
+// STREAMING AI ROUTES (Extension uses these)
+// =====================
+
+// POST /api/ai/stream — streaming for extension popup (all 4 actions)
+app.post('/api/ai/stream', async (req, res) => {
+  try {
+    const { action, transcript, question, videoTitle, isGuest } = req.body;
+    const ip = req.ip || req.connection.remoteAddress;
+
+    if (isGuest) {
+      const guestLimitSetting = db.prepare('SELECT value FROM settings WHERE key = ?').get('guest_daily_limit');
+      const guestLimit = guestLimitSetting ? JSON.parse(guestLimitSetting.value) : 100;
+      const guestCount = getGuestCount(ip);
+      if (guestCount >= guestLimit) {
+        return res.status(429).json({ error: `Daily limit reached (${guestLimit}/day). Sign up for unlimited.` });
+      }
+    }
+
+    if (!transcript && !question) {
+      return res.status(400).json({ error: 'transcript or question is required' });
+    }
+
+
+    let systemPrompt = '';
+    let userPrompt = '';
+
+
+    switch (action) {
+      case 'summarize':
+        systemPrompt = 'You are an expert at summarizing YouTube video content. Be concise, insightful, and well-structured. Use markdown with **bold** for key terms.';
+        userPrompt = `Video: "${videoTitle || 'YouTube Video'}"\n\nTranscript:\n${(transcript || '').slice(0, 12000)}\n
+Provide:
+**What This Video Is About**
+2-3 sentence overview.
+
+**Key Points**
+4-5 most important things discussed or shown.
+
+**Who Should Watch**
+Who would benefit most from this video.
+
+
+**Tone & Style**
+Brief note on the presenter's approach.`;
+        break;
+      case 'key_points':
+        systemPrompt = 'You extract the most important points from video transcripts in a clean, scannable format.';
+        userPrompt = `Video: "${videoTitle || 'YouTube Video'}"\n\nTranscript:\n${(transcript || '').slice(0, 12000)}
+
+List the 7-10 most important key points, facts, or takeaways from this video. Format as bullet points with **bold** for key terms. Be specific.`;
+        break;
+      case 'topics':
+        systemPrompt = 'You analyze video content and identify its topics, themes, and structure.';
+        userPrompt = `Video: "${videoTitle || 'YouTube Video'}"\n\nTranscript:\n${(transcript || '').slice(0, 12000)}
+
+
+Analyze and provide:
+
+**Main Topics Covered**
+
+**Timeline Structure**
+
+**Key Concepts & Terms**
+
+
+**Sentiment & Bias**`;
+        break;
+      case 'ask':
+        systemPrompt = 'You answer questions about YouTube videos based on their transcripts.';
+        userPrompt = `Video: "${videoTitle || 'YouTube Video'}"\n\nTranscript:\n${(transcript || '').slice(0, 12000)}\n
+Question: ${question}
+
+Answer based on the transcript above.`;
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid action. Use: summarize, key_points, topics, ask' });
+    }
+
+    const aiModel = db.prepare(`SELECT * FROM ai_models WHERE enabled = 1 AND api_key_encrypted IS NOT NULL AND api_key_encrypted != '' ORDER BY is_default DESC LIMIT 1`).get();
+    if (!aiModel) return res.status(500).json({ error: 'No AI model configured' });
+
+    const apiKey = decrypt(aiModel.api_key_encrypted);
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: aiModel.model_name || 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 1024,
+        stream: true
+      })
+    });
+
+    if (!groqRes.ok) {
+      res.end(`data: [DONE]\n\n`);
+      if (isGuest) incrementGuestCount(ip);
+      return;
+    }
+
+    const reader = groqRes.body.getReader();
+    const decoder = new TextDecoder();
+
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) res.write(`data: ${JSON.stringify({ choices: [{ delta: { content: delta } }] })}\n\n`);
+          } catch (_) {}
+        }
+      }
+    } catch (err) { console.error('Stream error:', err); }
+
+    res.write('data: [DONE]\n\n');
+    res.end();
+    if (isGuest) incrementGuestCount(ip);
+  } catch (error) {
+    console.error('AI stream error:', error);
+    if (!res.headersSent) res.status(500).json({ error: 'Failed to generate response' });
+    else res.end();
+  }
+});
+
+
+// =====================
 // SHARE ROUTES (Public)
 // =====================
 
