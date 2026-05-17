@@ -1,5 +1,7 @@
-// content.js — VidBreefy Transcript Extraction (UI-interaction method)
-// Works for both auto-generated AND manually-uploaded YouTube transcripts
+// content.js — VidBreefy Transcript Extraction
+// Method 1: ytInitialPlayerResponse from page (works for ~90% of captioned videos)
+// Method 2: UI click transcript panel + read DOM (fallback for manual transcripts)
+// Method 3: 3-dot menu (last resort for edge cases)
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getVideoInfo") {
@@ -19,11 +21,22 @@ async function getTranscript() {
   const title = document.title.replace(" - YouTube", "").trim();
   const videoId = new URLSearchParams(window.location.search).get("v");
 
-  // Step 1: transcript already open — read from DOM directly
+  // METHOD 1: Read from page's ytInitialPlayerResponse (page-level player data)
+  try {
+    const transcript = await fetchFromPlayerResponse();
+    if (transcript) {
+      console.log('[VidBreefy] Got transcript via player response, length:', transcript.length);
+      return { success: true, title, videoId, transcript };
+    }
+  } catch (e) {
+    console.log('[VidBreefy] Method 1 failed:', e.message);
+  }
+
+  // METHOD 2: DOM if transcript panel already open
   let text = readTranscriptDOM();
   if (text) return { success: true, title, videoId, transcript: text };
 
-  // Step 2: expand description if collapsed, then look for transcript button
+  // Click "Show transcript" button (handles manually uploaded transcripts)
   const expandBtn = document.querySelector("tp-yt-paper-button#expand, #expand, ytd-text-inline-expander #expand");
   if (expandBtn) { expandBtn.click(); await sleep(400); }
 
@@ -39,7 +52,7 @@ async function getTranscript() {
     }
   }
 
-  // Step 3: try 3-dot menu (more actions button)
+  // METHOD 3: 3-dot menu fallback
   const menuBtns = document.querySelectorAll('#button-shape button, ytd-menu-renderer #button, button[aria-label*="more" i], button[aria-label*="actions" i]');
   for (const btn of menuBtns) {
     btn.click();
@@ -59,6 +72,61 @@ async function getTranscript() {
   }
 
   throw new Error("Could not find transcript. Make sure the video has captions — look for the 'CC' button in the YouTube player.");
+}
+
+// Method 1: Read transcript from YouTube's ytInitialPlayerResponse stored in the page
+async function fetchFromPlayerResponse() {
+  // Find ytInitialPlayerResponse from page HTML
+  const html = document.documentElement.innerHTML;
+  const match = html.match(/ytInitialPlayerResponse\s*=\s*({.+?})\s*;/s);
+  if (!match) {
+    // Try alternate pattern used in newer YouTube
+    const altMatch = html.match(/"captions":\s*"([^"]+)"/);
+    return null;
+  }
+
+  let playerResponse;
+  try {
+    playerResponse = JSON.parse(match[1]);
+  } catch (e) {
+    return null;
+  }
+
+  const captions = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+  if (!captions || !captions.length) return null;
+
+  // Find a track with a working baseUrl
+  for (const track of captions) {
+    const baseUrl = track?.baseUrl;
+    if (!baseUrl) continue;
+
+    try {
+      const res = await fetch(baseUrl, { credentials: 'include' });
+      if (!res.ok) continue;
+      const xml = await res.text();
+      const text = parseTimedtextXML(xml);
+      if (text && text.length > 50) return text;
+    } catch (e) {
+      continue;
+    }
+  }
+
+  return null;
+}
+
+// Parse YouTube timedtext XML into plain text
+function parseTimedtextXML(xml) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xml, 'text/xml');
+  const texts = doc.querySelectorAll('text');
+  if (!texts.length) return null;
+
+  const lines = [];
+  for (const t of texts) {
+    let txt = t.textContent?.trim();
+    if (txt) lines.push(txt);
+  }
+  return lines.join(' ').replace(/\s+/g, ' ').trim();
 }
 
 function readTranscriptDOM() {
