@@ -224,6 +224,14 @@
   flex-shrink: 0;
 }
 
+.info-note {
+  display: block;
+  font-size: 12px;
+  color: #6b8a7a;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
 /* Format Label Row */
 .format-label-row {
   display: flex;
@@ -349,3 +357,119 @@
   color: var(--color-primary);
   background: var(--color-bg-hover);
 }
+
+/* Extension Fallback Card */
+.extension-fallback {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(20,184,166,0.08) 0%, rgba(34,197,94,0.05) 100%);
+  border: 1px solid rgba(20,184,166,0.25);
+  border-radius: var(--radius-lg);
+  margin-top: 16px;
+}
+
+.fallback-icon {
+  font-size: 36px;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.fallback-content {
+  flex: 1;
+}
+
+.fallback-content h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.fallback-content p {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.fallback-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.fallback-note {
+  font-size: 11px;
+  color: var(--color-text-muted, #6b8a7a);
+  line-height: 1.5;
+}
+
+/* Streaming Result */
+.streaming-result {
+  position: relative;
+  line-height: 1.7;
+  direction: rtl;
+  text-align: right;
+}
+
+.streaming-result p {
+  font-size: 14px;
+  direction: rtl;
+  text-align: right;
+}
+
+.result-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-top: 14px;
+  margin-bottom: 6px;
+  direction: rtl;
+  text-align: right;
+}
+
+
+.result-section-title:first-child {
+  margin-top: 0;
+}
+
+
+.result-bullet {
+  position: relative;
+  padding-right: 16px;
+  padding-left: 0;
+  margin-bottom: 5px;
+  color: var(--color-text-primary);
+  direction: rtl;
+  text-align: right;
+}
+
+
+.result-bullet::before {
+  content: '▸';
+  position: absolute;
+  right: 0;
+  left: auto;
+  color: var(--color-primary);
+  font-size: 10px;
+  top: 3px;
+}
+
+/* Streaming Cursor */
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  animation: blink 0.9s infinite;
+  vertical-align: text-bottom;
+  margin-right: 2px;
+}
+
+@keyframes blink { 50% { opacity: 0; } }

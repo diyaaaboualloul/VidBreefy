@@ -64,6 +64,11 @@ export const userAPI = {
   getApiKey: (provider) => api.get(`/user/api-keys/${provider}/key`),
 };
 
+// AI Streaming API (for website SummarizePage)
+export const aiAPI = {
+  stream: (data) => api.post('/ai/stream', data, { responseType: 'stream' }),
+};
+
 // Summaries API
 export const summariesAPI = {
   create: (data) => api.post('/summaries', data),

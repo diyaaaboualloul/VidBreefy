@@ -988,21 +988,25 @@ app.post('/api/ai/stream', async (req, res) => {
 
     switch (action) {
       case 'summarize':
-        systemPrompt = 'You are an expert at summarizing YouTube video content. Be concise, insightful, and well-structured. Use markdown with **bold** for key terms.';
-        userPrompt = `Video: "${videoTitle || 'YouTube Video'}"\n\nTranscript:\n${(transcript || '').slice(0, 12000)}\n
-Provide:
+        systemPrompt = 'You are an expert at summarizing YouTube video content. Be comprehensive, detailed, and accurate. Base EVERYTHING strictly on the transcript provided. Respond in the SAME language as the transcript (if transcript is Arabic, respond in Arabic). Do not add external information.';
+        userPrompt = `Video: "${videoTitle || 'YouTube Video'}"
+
+Transcript:
+${(transcript || '').slice(0, 15000)}
+
+Provide a comprehensive, detailed summary based ONLY on the transcript above:
+
 **What This Video Is About**
-2-3 sentence overview.
+Detailed explanation of the video'\''s main topic, purpose, and context.
 
 **Key Points**
-4-5 most important things discussed or shown.
+ALL important points discussed in the video. Include specific facts, examples, numbers, names, and recommendations mentioned. Be thorough.
 
-**Who Should Watch**
-Who would benefit most from this video.
+**Main Topics & Discussion**
+Break down the video into its main topics/sections. For each topic, explain what was said about it in detail.
 
-
-**Tone & Style**
-Brief note on the presenter's approach.`;
+**Specific Details Shared**
+Include any specific facts, statistics, tools, platforms, names, quotes, or recommendations mentioned verbatim in the video.`;
         break;
       case 'key_points':
         systemPrompt = 'You extract the most important points from video transcripts in a clean, scannable format.';

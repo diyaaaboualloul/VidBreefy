@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { summariesAPI } from '../api';
+import { summariesAPI, aiAPI } from '../api';
 import { useToast } from '../hooks/useToast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
@@ -15,10 +15,13 @@ export default function SummarizePage() {
   const [format, setFormat] = useState('short');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [streamingContent, setStreamingContent] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState('');
   const [dailyCount, setDailyCount] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showExtensionFallback, setShowExtensionFallback] = useState(false);
   const { success, error: showError, ToastComponent } = useToast();
   const navigate = useNavigate();
 
@@ -56,6 +59,8 @@ export default function SummarizePage() {
     e.preventDefault();
     setError('');
     setResult(null);
+    setStreamingContent('');
+    setShowExtensionFallback(false);
 
     if (!YOUTUBE_REGEX.test(url)) {
       setError('Please enter a valid YouTube URL');
@@ -68,9 +73,54 @@ export default function SummarizePage() {
     }
 
     setLoading(true);
+    setIsStreaming(true);
+
     try {
+      // Step 1: Get video info + transcript from backend
       const res = await summariesAPI.create({ url, format });
       setResult(res.data);
+
+      if (!res.data.transcript) {
+        setShowExtensionFallback(true);
+        setIsStreaming(false);
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Stream AI summary using the transcript
+      const videoTitle = res.data.video_title || getVideoTitle();
+      const streamRes = await aiAPI.stream({
+        action: 'summarize',
+        transcript: res.data.transcript,
+        videoTitle,
+        isGuest: !user,
+      });
+
+      const reader = streamRes.data.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) {
+              fullText += delta;
+              setStreamingContent(fullText);
+            }
+          } catch (_) {}
+        }
+      }
+
+      setStreamingContent(fullText);
       success('Summary ready!');
 
       if (!user) {
@@ -80,19 +130,44 @@ export default function SummarizePage() {
         setDailyCount(newCount);
       }
     } catch (err) {
-      showError(err.response?.data?.message || 'Failed to summarize video');
+      const msg = err.response?.data?.message || 'Failed to summarize video';
+      setError(msg);
+      const transcriptFail =
+        msg.toLowerCase().includes('transcript') ||
+        msg.toLowerCase().includes('caption') ||
+        msg.toLowerCase().includes('subtitle') ||
+        err.response?.status === 500;
+      if (transcriptFail) {
+        setResult(null);
+        setStreamingContent('');
+        setShowExtensionFallback(true);
+      }
     } finally {
       setLoading(false);
+      setIsStreaming(false);
     }
   };
 
   const handleCopy = async () => {
-    if (result?.summary) {
-      await navigator.clipboard.writeText(result.summary);
+    const text = streamingContent || result?.summary || '';
+    if (text) {
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  function formatMarkdown(text) {
+    if (!text) return '';
+    text = text.replace(/\*\*(.*?)\b/g, '<strong>$1</strong>');
+    text = text.replace(/^### (.+)$/gm, '<div class="result-section-title">$1</div>');
+    text = text.replace(/^## (.+)$/gm, '<div class="result-section-title">$1</div>');
+    text = text.replace(/^[\-\*•] (.+)$/gm, '<div class="result-bullet">$1</div>');
+    text = text.replace(/^\d+\. (.+)$/gm, '<div class="result-bullet">$1</div>');
+    text = text.replace(/\n\n/g, '</p><p style="margin-top:8px">');
+    text = text.replace(/\n/g, '<br/>');
+    return text;
+  }
 
   const handleShare = () => {
     if (result?.shareHash) {
@@ -131,6 +206,7 @@ export default function SummarizePage() {
           <span className="info-icon">💡</span>
           <div>
             <strong>How it works:</strong> Paste a YouTube URL → We extract the transcript → AI summarizes it → You get the key points in seconds.
+            <span className="info-note"> Videos with auto-generated captions work best. ~30-40% of videos may need the <a href="/vidbreefy-extension.zip" download style={{color:'inherit'}}>VidBreefy Extension</a> for manual transcripts.</span>
           </div>
         </div>
 
@@ -250,6 +326,40 @@ export default function SummarizePage() {
           )}
         </form>
 
+        {/* Extension Fallback — when transcript fails */}
+        {showExtensionFallback && (
+          <div className="extension-fallback animate-slideUp">
+            <div className="fallback-icon">🎬</div>
+            <div className="fallback-content">
+              <h3>This video needs the VidBreefy Extension</h3>
+              <p>
+                The video doesn't have auto-generated captions, so our website can't extract the transcript.
+                The VidBreefy Extension reads captions directly from YouTube for better accuracy.
+              </p>
+              <div className="fallback-actions">
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                >
+                  Open in YouTube
+                </a>
+                <a
+                  href="/vidbreefy-extension.zip"
+                  download
+                  className="btn btn-secondary"
+                >
+                  Download Extension
+                </a>
+              </div>
+              <p className="fallback-note">
+                Install the extension → go to the YouTube video → click VidBreefy icon
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* AdSense for non-pro users */}
         {!user && !isPro && (
           <div className="adsense-container">
@@ -264,12 +374,12 @@ export default function SummarizePage() {
           </div>
         )}
 
-        {result && (
+        {(result || streamingContent) && !showExtensionFallback && (
           <div className="result-container animate-slideUp">
             <div className="result-header">
               {getYoutubeThumbnail(url) && (
-                <img 
-                  src={getYoutubeThumbnail(url)} 
+                <img
+                  src={getYoutubeThumbnail(url)}
                   alt={getVideoTitle()}
                   className="video-thumbnail"
                 />
@@ -277,8 +387,8 @@ export default function SummarizePage() {
               <div className="result-info">
                 <h2>{getVideoTitle()}</h2>
                 <div className="result-meta">
-                  <span className="format-badge">{format.toUpperCase()}</span>
-                  {result.createdAt && (
+                  <span className="format-badge">SUMMARY</span>
+                  {result?.createdAt && (
                     <span className="date">
                       {new Date(result.createdAt).toLocaleDateString()}
                     </span>
@@ -287,8 +397,9 @@ export default function SummarizePage() {
               </div>
             </div>
 
-            <div className="result-summary">
-              <p>{result.summary}</p>
+            <div className="result-summary streaming-result">
+              {isStreaming && <span className="streaming-cursor"></span>}
+              <div className="result-summary streaming-result" dangerouslySetInnerHTML={{ __html: formatMarkdown(streamingContent || result?.summary || '') }} />
             </div>
 
             <div className="result-actions">
