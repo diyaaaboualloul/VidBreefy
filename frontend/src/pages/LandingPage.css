@@ -1,3 +1,31 @@
+/* Scroll Reveal - add .reveal class + .revealed state */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger reveal children */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal-stagger.revealed > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0ms; }
+.reveal-stagger.revealed > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 80ms; }
+.reveal-stagger.revealed > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 160ms; }
+.reveal-stagger.revealed > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 240ms; }
+.reveal-stagger.revealed > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 320ms; }
+.reveal-stagger.revealed > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 400ms; }
+.reveal-stagger.revealed > *:nth-child(7) { opacity: 1; transform: translateY(0); transition-delay: 480ms; }
+.reveal-stagger.revealed > *:nth-child(8) { opacity: 1; transform: translateY(0); transition-delay: 560ms; }
+
 /* ─── Hero Section ─── */
 .hero {
   position: relative;

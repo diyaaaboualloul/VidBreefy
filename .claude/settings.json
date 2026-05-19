@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "bypass": true,
+    "autoApproveDangerous": true
+  },
+  "permissionsFile": {
+    "alwaysAllow": ["true"]
+  }
+}

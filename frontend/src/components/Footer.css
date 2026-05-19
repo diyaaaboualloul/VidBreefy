@@ -31,12 +31,19 @@
   font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-text-primary);
+  transition: transform 0.2s ease;
+}
+
+.footer-logo:hover {
+  transform: translateY(-2px);
+  color: var(--color-text-primary);
 }
 
 .footer-tagline {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   max-width: 250px;
+  line-height: 1.6;
 }
 
 .footer-links {
@@ -51,6 +58,7 @@
   color: var(--color-text-primary);
   margin-bottom: var(--space-md);
   font-family: var(--font-heading);
+  letter-spacing: 0.3px;
 }
 
 .footer-section a {
@@ -58,11 +66,33 @@
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   padding: var(--space-xs) 0;
-  transition: color var(--transition-fast);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.footer-section a::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  transition: all var(--transition-fast);
+  transform: translateY(-50%);
+  opacity: 0;
 }
 
 .footer-section a:hover {
   color: var(--color-primary);
+  padding-left: 12px;
+}
+
+.footer-section a:hover::before {
+  width: 6px;
+  left: 0;
+  opacity: 1;
 }
 
 .footer-bottom {
@@ -77,10 +107,18 @@
 
 .footer-studio a {
   color: var(--color-text-secondary);
+  font-weight: 500;
+  transition: color var(--transition-fast);
 }
 
 .footer-studio a:hover {
   color: var(--color-primary);
+}
+
+.footer-studio svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 2px;
 }
 
 @media (max-width: 768px) {

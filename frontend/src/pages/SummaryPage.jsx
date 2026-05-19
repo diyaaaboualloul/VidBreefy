@@ -22,7 +22,18 @@ export default function SummaryPage() {
     setLoading(true);
     try {
       const res = await summariesAPI.getByHash(hash);
-      setSummary(res.data);
+      // Normalize API response to component field names
+      const raw = res.data.summary;
+      setSummary({
+        title: raw.video_title,
+        summary: raw.summary_text,
+        url: raw.video_id ? `https://youtube.com/watch?v=${raw.video_id}` : null,
+        format: raw.format_type,
+        viewCount: raw.view_count,
+        createdAt: raw.created_at,
+        thumbnailUrl: raw.thumbnail_url,
+        userEmail: raw.user_email,
+      });
       // Increment view count
       summariesAPI.incrementView(hash).catch(() => {});
     } catch (err) {
@@ -33,10 +44,25 @@ export default function SummaryPage() {
   };
 
   const handleCopy = async () => {
-    if (summary?.summary) {
-      await navigator.clipboard.writeText(summary.summary);
+    if (!summary?.summary) return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(summary.summary);
+      } else {
+        // Fallback for HTTP context
+        const ta = document.createElement('textarea');
+        ta.value = summary.summary;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Copy failed:', err);
     }
   };
 
@@ -115,9 +141,6 @@ export default function SummaryPage() {
               <button className="btn btn-primary" onClick={handleCopy}>
                 {copied ? '✓ Copied!' : 'Copy Summary'}
               </button>
-              <a href={`${window.location.origin}/summarize`} className="btn btn-secondary">
-                Create Your Own
-              </a>
             </div>
           </div>
         </div>

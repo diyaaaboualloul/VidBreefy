@@ -1,3 +1,4 @@
+/* Premium App Shell - no Vite defaults, just layout */
 .app {
   display: flex;
   flex-direction: column;
@@ -10,9 +11,30 @@
   flex-direction: column;
 }
 
-/* Remove default Vite styles */
-:root {
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: dark;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 184, 166, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 184, 166, 0.5);
+}
+
+/* Text selection */
+::selection {
+  background: rgba(20, 184, 166, 0.25);
+  color: #0f172a;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
